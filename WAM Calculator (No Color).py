@@ -1,28 +1,18 @@
 #-*-coding:utf-8-*-
 
-import numpy as np
 import matplotlib.pyplot as plt
 
 import time
 import getpass
 from selenium import webdriver
-#from selenium.webdriver.firefox.options import Options
 from selenium.webdriver.chrome.options import Options
-from selenium.webdriver.common.action_chains import ActionChains  #鼠标操作包
-import os
 import json
 import pandas as pd
 from tabulate import tabulate
 
-
 from webdriver_manager.chrome import ChromeDriverManager
-from selenium.webdriver.support.ui import Select  #select类，下拉菜单使用
 from selenium.webdriver.common.by import By   #By.ID
 from selenium.webdriver.chrome.service import Service
-
-
-#get current directory
-cwd = os.getcwd()
 
 use_local_info = False  # Don't store password information into local, PASSWORD will not be encrypted.
 
@@ -59,7 +49,6 @@ def get_saved_pass():
         return None
     else:
         return userInfo
-
 
 
 # Scrap for mark, return a dataframe
@@ -124,7 +113,6 @@ def AnalysisMark(df):
     plt.axhline(y=round(df["Mark"].mean(), 2), color='r', linestyle='-', label="TotalWAM")
     plt.axhline(y=round(df.loc[df["Covid"]==False]["Mark"].mean(), 2), color='b', linestyle='-', label="COVIDWAM")
 
-    
     plt.title("My WAM Trend")
     plt.legend(loc='center left', bbox_to_anchor=(1.0, 0.5))
     
@@ -233,5 +221,3 @@ driver.close()
 print("============================\n")
 print("Thank you for using this APP!\n")
 print("Made With \u2764\uFE0F  by " + f"https://lich2000117.github.io/")
-
-
