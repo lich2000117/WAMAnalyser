@@ -13,3 +13,9 @@ Therefore, I wrote this small program that aotumatically calculate your wam with
 - Download executable file from "release" section.
 - Designed for Windows and Mac users.
 -- Enter Your Uni Account UserName + Password
+
+## Common Issues:
+- Press Enter after you enter your username & password.
+- If open the app and nothing happens, press Enter for a few times.
+
+## Your Login information is only used to login into school's website. Your Information will NOT be gathered or shared with any other use.

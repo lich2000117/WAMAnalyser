@@ -94,7 +94,7 @@ def AnalysisMark(df):
 
     ## Get Newest FOUR Marks:
     print(f"\n===========LATEST RESULTS============\n")
-    print(df.iloc[:4]["Year", "Study Period", "Subject", "Short Title", "Mark", "Grade Code"])
+    print(df.iloc[:4])
 
     ## Summary:
     print(f"\n===========Semester Summary============\n")
@@ -218,8 +218,10 @@ while(True):
 df = GetDataframe()
 # Try handle the error
 try:
-    if (df == -1):
+    if (type(df) is int):
         print("\nAn error Occured, Please Rerun the program. \n\n")
+    else:
+        AnalysisMark(df)
 except:
     AnalysisMark(df)
 
