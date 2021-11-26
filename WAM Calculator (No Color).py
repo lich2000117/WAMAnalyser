@@ -26,16 +26,6 @@ cwd = os.getcwd()
 
 use_local_info = False  # Don't store password information into local, PASSWORD will not be encrypted.
 
-class bcolors:
-    HEADER = '\033[95m'
-    OKBLUE = '\033[94m'
-    OKCYAN = '\033[96m'
-    OKGREEN = '\033[92m'
-    WARNING = '\033[93m'
-    FAIL = '\033[91m'
-    ENDC = '\033[0m'
-    BOLD = '\033[1m'
-    UNDERLINE = '\033[4m'
 
 ###functions:
 
@@ -103,11 +93,11 @@ def AnalysisMark(df):
     df_covid_adj = df.loc[df["Covid"]!=True]
 
     ## Get Newest FOUR Marks:
-    print(f"{bcolors.WARNING}\n===========LATEST RESULTS============\n{bcolors.ENDC}")
+    print(f"\n===========LATEST RESULTS============\n")
     print(df.iloc[:4]["Year", "Study Period", "Subject", "Short Title", "Mark", "Grade Code"])
 
     ## Summary:
-    print(f"{bcolors.BOLD}\n===========Semester Summary============\n{bcolors.ENDC}")
+    print(f"\n===========Semester Summary============\n")
     # adjusted wam
     grouped_df_adj = df_covid_adj.groupby(['Year', 'Study Period'], as_index=True).agg(COVID_WAM=('Mark', 'mean'))
     #print(grouped_df_adj)
@@ -116,7 +106,7 @@ def AnalysisMark(df):
     # total dataframe
     grouped_df = pd.concat([grouped_df_adj, grouped_df_norm[["TOTAL_WAM", "TOTAL_std"]]], axis=1)
     print(grouped_df)
-    print(f"{bcolors.BOLD}\n\n===========Total Summary============\n{bcolors.ENDC}")
+    print(f"\n\n===========Total Summary============\n")
     d = [ 
         ["WAM", round(df.loc[df["Covid"]==False]["Mark"].mean(), 2), round(df["Mark"].mean(), 2)],
         ["Median", round(df.loc[df["Covid"]==False]["Mark"].median(), 2), round(df["Mark"].median(), 2)],
@@ -138,7 +128,7 @@ def AnalysisMark(df):
     plt.title("My WAM Trend")
     plt.legend(loc='center left', bbox_to_anchor=(1.0, 0.5))
     
-    input(f"{bcolors.OKBLUE}Press {bcolors.BOLD}ANY KEY{bcolors.ENDC} to show my WAM trend:{bcolors.ENDC}")
+    input(f"Press ANY KEY to show my WAM trend: ")
     plt.show()
     return
     
@@ -150,7 +140,7 @@ def AnalysisMark(df):
 # Configurations
 URL = "https://prod.ss.unimelb.edu.au/student/login.aspx?ReturnUrl=%2fstudent%2fSM%2fResultsDtls10.aspx%3fr%3d%2523UM.STUDENT.APPLICANT%26f%3d%24S1.EST.RSLTDTLS.WEB&r=%23UM.STUDENT.APPLICANT&f=$S1.EST.RSLTDTLS.WEB"
 
-print(f"{bcolors.HEADER }\n=======  WAM CALCULATOR ========{bcolors.ENDC}")
+print(f"\n=======  WAM CALCULATOR ========")
 print("                     By Chenghao Li")
 print("\nPlease Press ENTER after your entry later.")
 #Driver Initialize
@@ -175,11 +165,11 @@ driver = webdriver.Chrome(service = s, options=options)
 
 print("Testing Connection......\n", end = '')
 driver.get(URL)
-print(f"{bcolors.OKGREEN}Succeed!\n{bcolors.ENDC}")
+print(f"Succeed!\n")
 
 #Login Part:
 # "== Login ==", break when succeed.
-print(f"{bcolors.WARNING}All Login information will NOT be shared.\n{bcolors.ENDC}")
+print(f"All Login information will NOT be shared.\n")
 while(True):
     if (use_local_info):
         userInfo = get_saved_pass()
@@ -211,14 +201,14 @@ while(True):
             #use_local_info = str(input("Do you want to save your login information on your computer? (T/F)"))
             if use_local_info == True:
                 save_user_new_pass(userInfo)  # Save information to local
-            print("\nUser " + f"{bcolors.BOLD}{userInfo['userName']}{bcolors.ENDC}" + " Login Successfully!")
+            print("\nUser " + f"{userInfo['userName']}" + " Login Successfully!")
             break
         # Fail to login, Retry
         else:
-            print(f"{bcolors.WARNING}\n Time out, Please Retry! ___\n{bcolors.ENDC}")
+            print(f"\n Time out, Please Retry! ___\n")
             time.sleep(1)
     except:
-        print(f"{bcolors.WARNING}\n___ Unmatched UserName and Passwords, Please Retry! ___ \n{bcolors.ENDC}")
+        print(f"\n___ Unmatched UserName and Passwords, Please Retry! ___ \n")
         time.sleep(1)
     
 
@@ -240,6 +230,6 @@ driver.close()
 #driver.quit()
 print("============================\n")
 print("Thank you for using this APP!\n")
-print("Made With \u2764\uFE0F  by " + f"{bcolors.OKCYAN}https://lich2000117.github.io/{bcolors.ENDC}")
+print("Made With \u2764\uFE0F  by " + f"https://lich2000117.github.io/")
 
 
