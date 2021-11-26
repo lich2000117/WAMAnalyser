@@ -56,7 +56,7 @@ def GetDataframe():
 
     # Click on Latest Degree Button "View" to show score table
     try:
-        driver.find_elements_by_xpath("//*[contains(text(), 'View')]").click()
+        driver.find_element(By.XPATH, "//*[contains(text(), 'View')]").click()
     except:
         print("Failed to click on degree button!\n")
         return -1
@@ -122,8 +122,8 @@ def AnalysisMark(df):
 URL = "https://prod.ss.unimelb.edu.au/student/Login.aspx"
 
 print(f"\n=======  WAM CALCULATOR ========")
-print("                     By Chenghao Li")
-print("\nPlease Press ENTER after your entry later.")
+print("                     [By Chenghao Li]")
+print("\n(If you get stuck, try press ENTER)")
 #Driver Initialize
 # Headless runs explorer at background without windows
 options = Options()
@@ -140,11 +140,12 @@ options.add_experimental_option("prefs", No_Image_loading)
 #driver = webdriver.Firefox(options=options, executable_path=driverPath)
 #driver = webdriver.Chrome(options=options, executable_path=driverPath)
 
+
 ## Install Driver
+print("\nMake Sure You are Connected to Internet (Use VPN if desired)......\n")
 s = Service(ChromeDriverManager(log_level=0).install())
 driver = webdriver.Chrome(service = s, options=options)
-
-print("Testing Connection......\n", end = '')
+print("\nTesting Connection......\n")
 driver.get(URL)
 print(f"Succeed!\n")
 
@@ -171,7 +172,7 @@ while(True):
     driver.find_element(By.ID, 'ctl00_Content_txtPassword_txtText').send_keys(userInfo['passWord'])  #password
     time.sleep(0.5)
     driver.find_element(By.ID, 'ctl00_Content_cmdLogin').click()  # Login
-    time.sleep(1)
+    time.sleep(1.5)
     print("\nTrying to Login....")
     #Check if login successfully
     try:
@@ -179,8 +180,12 @@ while(True):
         # Login Successfully!
         if strs == "Personal Details":
             # Direct to result page
-            driver.find_elements_by_xpath("//*[contains(text(), 'Results and Graduation')]").click()
-            time.sleep(1)
+            try:
+                driver.find_element(By.XPATH, "//*[text()='Results and Graduation']").click()
+                time.sleep(1)
+            except:
+                print("Cannot Direct To Result Page!")
+                assert(1==0)
             #Save To Local?
             #use_local_info = str(input("Do you want to save your login information on your computer? (T/F)"))
             if use_local_info == True:
@@ -192,7 +197,7 @@ while(True):
             print(f"\n Time out, Please Retry! ___\n")
             time.sleep(1)
     except:
-        print(f"\n___ Unmatched UserName and Passwords, Please Retry! ___ \n")
+        print(f"\n___ Login Failed, Please Retry! ___ \n")
         time.sleep(1)
     
 
