@@ -14,6 +14,7 @@ Windows:
 - Download executable file from "release" section.
 - Designed for Windows and Mac users.
 -- Enter Your Uni Account UserName + Password
+- Build in Windows: use terminal 'auto-py-to-exe' to build
 Mac:
 Haven't realease yet, but you can still run it.
 - Make sure you know how to use python (install packages, etc)
