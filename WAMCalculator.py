@@ -19,7 +19,7 @@ use_local_info = False  # Don't store password information into local, PASSWORD 
 
 ###functions:
 
-#模式选择Input
+#Mode Choosing Input
 def ask_user_mode():
     while (True):
         inp = str(input("\n== Mode Select ==: \n  1.Calculate TOTAL WAM: Please Enter: 1\n  2.Calculate COVID-19 WAM: Please Enter: 2\n"))
@@ -58,8 +58,7 @@ def GetDataframe():
     try:
         driver.find_element(By.XPATH, "//*[contains(text(), 'View')]").click()
     except:
-        print("Failed to click on degree button!\n")
-        return -1
+        pass
     time.sleep(1)
 
     # Scraping Part for extracting marks from table.
