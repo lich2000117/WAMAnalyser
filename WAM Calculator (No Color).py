@@ -53,17 +53,10 @@ def get_saved_pass():
 
 # Scrap for mark, return a dataframe
 def GetDataframe():
-    ## Output Format:
-    MarkInfo = {
-            'covid_list': [],
-            'norm_list': [],    
-            'covid_count': 0,
-            'norm_count': 0,
-        }
 
     # Click on Latest Degree Button "View" to show score table
     try:
-        driver.find_element(By.ID, "ctl00_Content_grdResultPlans_ctl02_ctl00").click()
+        driver.find_elements_by_xpath("//*[contains(text(), 'View')]").click()
     except:
         print("Failed to click on degree button!\n")
         return -1
@@ -126,7 +119,7 @@ def AnalysisMark(df):
 
 
 # Configurations
-URL = "https://prod.ss.unimelb.edu.au/student/login.aspx?ReturnUrl=%2fstudent%2fSM%2fResultsDtls10.aspx%3fr%3d%2523UM.STUDENT.APPLICANT%26f%3d%24S1.EST.RSLTDTLS.WEB&r=%23UM.STUDENT.APPLICANT&f=$S1.EST.RSLTDTLS.WEB"
+URL = "https://prod.ss.unimelb.edu.au/student/Login.aspx"
 
 print(f"\n=======  WAM CALCULATOR ========")
 print("                     By Chenghao Li")
@@ -176,15 +169,18 @@ while(True):
     driver.find_element(By.ID, 'ctl00_Content_txtUserName_txtText').send_keys(userInfo['userName'])
     driver.find_element(By.ID, 'ctl00_Content_txtPassword_txtText').clear()
     driver.find_element(By.ID, 'ctl00_Content_txtPassword_txtText').send_keys(userInfo['passWord'])  #password
-    time.sleep(1)
+    time.sleep(0.5)
     driver.find_element(By.ID, 'ctl00_Content_cmdLogin').click()  # Login
     time.sleep(1)
     print("\nTrying to Login....")
-
     #Check if login successfully
     try:
         strs = driver.find_element(By.ID, "ctl00_h1PageTitle").text
-        if strs == "Results > Choose a Study Plan":
+        # Login Successfully!
+        if strs == "Personal Details":
+            # Direct to result page
+            driver.find_elements_by_xpath("//*[contains(text(), 'Results and Graduation')]").click()
+            time.sleep(1)
             #Save To Local?
             #use_local_info = str(input("Do you want to save your login information on your computer? (T/F)"))
             if use_local_info == True:
