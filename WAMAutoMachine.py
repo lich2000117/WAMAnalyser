@@ -1,45 +1,25 @@
 #-*-coding:utf-8-*-
 
-import numpy as np
-import matplotlib.pyplot as plt
-
+#import matplotlib.pyplot as plt
+import plotext as pltt
 import time
 import getpass
 from selenium import webdriver
-#from selenium.webdriver.firefox.options import Options
 from selenium.webdriver.chrome.options import Options
-from selenium.webdriver.common.action_chains import ActionChains  #鼠标操作包
-import os
 import json
 import pandas as pd
 from tabulate import tabulate
 
-
 from webdriver_manager.chrome import ChromeDriverManager
-from selenium.webdriver.support.ui import Select  #select类，下拉菜单使用
 from selenium.webdriver.common.by import By   #By.ID
 from selenium.webdriver.chrome.service import Service
 
-
-#get current directory
-cwd = os.getcwd()
-
 use_local_info = False  # Don't store password information into local, PASSWORD will not be encrypted.
 
-class bcolors:
-    HEADER = '\033[95m'
-    OKBLUE = '\033[94m'
-    OKCYAN = '\033[96m'
-    OKGREEN = '\033[92m'
-    WARNING = '\033[93m'
-    FAIL = '\033[91m'
-    ENDC = '\033[0m'
-    BOLD = '\033[1m'
-    UNDERLINE = '\033[4m'
 
 ###functions:
 
-#模式选择Input
+#Mode Choosing Input
 def ask_user_mode():
     while (True):
         inp = str(input("\n== Mode Select ==: \n  1.Calculate TOTAL WAM: Please Enter: 1\n  2.Calculate COVID-19 WAM: Please Enter: 2\n"))
@@ -71,23 +51,14 @@ def get_saved_pass():
         return userInfo
 
 
-
 # Scrap for mark, return a dataframe
 def GetDataframe():
-    ## Output Format:
-    MarkInfo = {
-            'covid_list': [],
-            'norm_list': [],    
-            'covid_count': 0,
-            'norm_count': 0,
-        }
 
     # Click on Latest Degree Button "View" to show score table
     try:
-        driver.find_element(By.ID, "ctl00_Content_grdResultPlans_ctl02_ctl00").click()
+        driver.find_element(By.XPATH, "//*[contains(text(), 'View')]").click()
     except:
-        print("Failed to click on degree button!\n")
-        return -1
+        pass
     time.sleep(1)
 
     # Scraping Part for extracting marks from table.
@@ -103,20 +74,38 @@ def AnalysisMark(df):
     df_covid_adj = df.loc[df["Covid"]!=True]
 
     ## Get Newest FOUR Marks:
-    print(f"{bcolors.WARNING}\n===========LATEST RESULTS============\n{bcolors.ENDC}")
-    print(df.iloc[:4]["Year", "Study Period", "Subject", "Short Title", "Mark", "Grade Code"])
+    print(f"\n===================LATEST RESULTS====================\n")
+    try:
+        print(df.iloc[:4][["Year", "Study Period", "Subject", "Mark", "Grade Code", "Covid"]].to_string(index=False))
+    except:
+        print(df["Year", "Study Period", "Subject", "Mark", "Grade Code", "Covid"].to_string(index=False))
 
     ## Summary:
-    print(f"{bcolors.BOLD}\n===========Semester Summary============\n{bcolors.ENDC}")
+    print(f"\n===================COURSE Summary====================\n")
+    # Groupby Course Types
+    df_covid_adj2 = df_covid_adj.copy()
+    df2 = df.copy()
+    df_covid_adj2['Subject'] = df_covid_adj2['Subject'].str[:4]
+    df2['Subject'] = df2['Subject'].str[:4]
     # adjusted wam
-    grouped_df_adj = df_covid_adj.groupby(['Year', 'Study Period'], as_index=True).agg(COVID_WAM=('Mark', 'mean'))
-    #print(grouped_df_adj)
+    grouped_df_adj1 = df_covid_adj2.groupby(['Subject'], as_index=False).agg(COVID_WAM=('Mark', 'mean'))
     # non-adj wam
-    grouped_df_norm = df.groupby(['Year', 'Study Period'], as_index=True).agg(TOTAL_WAM=('Mark', 'mean'), TOTAL_std=('Mark', 'std'))
+    grouped_df_norm1 = df2.groupby(['Subject'], as_index=False).agg(TOTAL_WAM=('Mark', 'mean'), TOTAL_std=('Mark', 'std'))
     # total dataframe
-    grouped_df = pd.concat([grouped_df_adj, grouped_df_norm[["TOTAL_WAM", "TOTAL_std"]]], axis=1)
-    print(grouped_df)
-    print(f"{bcolors.BOLD}\n\n===========Total Summary============\n{bcolors.ENDC}")
+    grouped_df1 = pd.concat([grouped_df_norm1, grouped_df_adj1[["COVID_WAM"]]], axis=1)
+    print(grouped_df1.sort_values(by=['TOTAL_WAM'], ascending = False).to_string(index=False))
+
+
+    print(f"\n===================Semester Summary====================\n")
+    # adjusted wam
+    grouped_df_adj2 = df_covid_adj.groupby(['Year', 'Study Period'], as_index=False).agg(COVID_WAM=('Mark', 'mean'))
+    # non-adj wam
+    grouped_df_norm2 = df.groupby(['Year', 'Study Period'], as_index=False).agg(TOTAL_WAM=('Mark', 'mean'), TOTAL_std=('Mark', 'std'))
+    # total dataframe
+    grouped_df2 = pd.concat([grouped_df_adj2, grouped_df_norm2[["TOTAL_WAM", "TOTAL_std"]]], axis=1)
+    print(grouped_df2.to_string(index=False))
+
+    print(f"\n\n===================Total Summary====================\n")
     d = [ 
         ["WAM", round(df.loc[df["Covid"]==False]["Mark"].mean(), 2), round(df["Mark"].mean(), 2)],
         ["Median", round(df.loc[df["Covid"]==False]["Mark"].median(), 2), round(df["Mark"].median(), 2)],
@@ -125,21 +114,27 @@ def AnalysisMark(df):
     print(tabulate(d, headers=["", "Covid-Adj Marks", "ALL Marks"]))
 
     ## Graph
-    plt.figure(figsize=(12, 5), dpi=200)
-    plt.tight_layout()
-    plt.ylim([30, 100])
-    
-    grouped_df["TOTAL_WAM"].plot(kind='bar',x=['Year', 'Study Period'],y='TOTAL_WAM',rot=10)
-    #Plot WAM line
-    plt.axhline(y=round(df["Mark"].mean(), 2), color='r', linestyle='-', label="TotalWAM")
-    plt.axhline(y=round(df.loc[df["Covid"]==False]["Mark"].mean(), 2), color='b', linestyle='-', label="COVIDWAM")
+    print(f"\n\n===================Graph Summary====================\n")
+    grouped_df2["Period"] = grouped_df2["Year"].astype(str) +" "+ grouped_df2["Study Period"]
+    pltt.bar(grouped_df2["Period"].tolist(), grouped_df2["TOTAL_WAM"].tolist())
+    pltt.plot([round(df["Mark"].mean(), 2)]*(len(grouped_df2)+1), label = "TotalWAM")
+    pltt.plot([round(df.loc[df["Covid"]==False]["Mark"].mean(), 2)]*(len(grouped_df2)+1), label = "CovidWAM")
+    pltt.title("My WAM Trend")
 
-    
-    plt.title("My WAM Trend")
-    plt.legend(loc='center left', bbox_to_anchor=(1.0, 0.5))
-    
-    input(f"{bcolors.OKBLUE}Press {bcolors.BOLD}ANY KEY{bcolors.ENDC} to show my WAM trend:{bcolors.ENDC}")
-    plt.show()
+    #input(f"\nPress ANY KEY to show my WAM trend: ")
+    pltt.show()
+    ## Pop Out GRAPH:
+    # plt.figure(figsize=(10, 5), dpi=160)
+    # plt.tight_layout()
+    # plt.ylim([30, 100])
+    # grouped_df2["TOTAL_WAM"].plot(kind='bar',x=['Year', 'Study Period'],y='TOTAL_WAM',rot=10)
+    # #Plot WAM line
+    # plt.axhline(y=round(df["Mark"].mean(), 2), color='r', linestyle='-', label="TotalWAM")
+    # plt.axhline(y=round(df.loc[df["Covid"]==False]["Mark"].mean(), 2), color='b', linestyle='-', label="COVIDWAM")
+    # plt.title("My WAM Trend")
+    # plt.legend(loc='center left', bbox_to_anchor=(0, 0.3))
+    # input(f"\nPress ANY KEY to show my WAM trend: ")
+    # print(plt.show())
     return
     
 
@@ -148,11 +143,11 @@ def AnalysisMark(df):
 
 
 # Configurations
-URL = "https://prod.ss.unimelb.edu.au/student/login.aspx?ReturnUrl=%2fstudent%2fSM%2fResultsDtls10.aspx%3fr%3d%2523UM.STUDENT.APPLICANT%26f%3d%24S1.EST.RSLTDTLS.WEB&r=%23UM.STUDENT.APPLICANT&f=$S1.EST.RSLTDTLS.WEB"
+URL = "https://prod.ss.unimelb.edu.au/student/Login.aspx"
 
-print(f"{bcolors.HEADER }\n=======  WAM CALCULATOR ========{bcolors.ENDC}")
-print("                     By Chenghao Li")
-print("\nPlease Press ENTER after your entry later.")
+print(f"\n=======  WAM CALCULATOR ========")
+print("                     [By Chenghao Li]")
+print("\n(If you get stuck, try press ENTER)")
 #Driver Initialize
 # Headless runs explorer at background without windows
 options = Options()
@@ -169,17 +164,18 @@ options.add_experimental_option("prefs", No_Image_loading)
 #driver = webdriver.Firefox(options=options, executable_path=driverPath)
 #driver = webdriver.Chrome(options=options, executable_path=driverPath)
 
+
 ## Install Driver
+print("\nMake Sure You are Connected to Internet (Use VPN if desired)......\n")
 s = Service(ChromeDriverManager(log_level=0).install())
 driver = webdriver.Chrome(service = s, options=options)
-
-print("Testing Connection......\n", end = '')
+print("\nTesting Connection......\n")
 driver.get(URL)
-print(f"{bcolors.OKGREEN}Succeed!\n{bcolors.ENDC}")
+print(f"Succeed!\n")
 
 #Login Part:
 # "== Login ==", break when succeed.
-print(f"{bcolors.WARNING}All Login information will NOT be shared.\n{bcolors.ENDC}")
+print(f"All Login information will NOT be shared.\n*Your Password will NOT be displayed. Press ENTER when finished.*\n")
 while(True):
     if (use_local_info):
         userInfo = get_saved_pass()
@@ -198,27 +194,34 @@ while(True):
     driver.find_element(By.ID, 'ctl00_Content_txtUserName_txtText').send_keys(userInfo['userName'])
     driver.find_element(By.ID, 'ctl00_Content_txtPassword_txtText').clear()
     driver.find_element(By.ID, 'ctl00_Content_txtPassword_txtText').send_keys(userInfo['passWord'])  #password
-    time.sleep(1)
+    time.sleep(0.5)
     driver.find_element(By.ID, 'ctl00_Content_cmdLogin').click()  # Login
-    time.sleep(1)
+    time.sleep(1.5)
     print("\nTrying to Login....")
-
     #Check if login successfully
     try:
         strs = driver.find_element(By.ID, "ctl00_h1PageTitle").text
-        if strs == "Results > Choose a Study Plan":
+        # Login Successfully!
+        if strs == "Personal Details":
+            # Direct to result page
+            try:
+                driver.find_element(By.XPATH, "//*[text()='Results and Graduation']").click()
+                time.sleep(1)
+            except:
+                print("Cannot Direct To Result Page!")
+                assert(1==0)
             #Save To Local?
             #use_local_info = str(input("Do you want to save your login information on your computer? (T/F)"))
             if use_local_info == True:
                 save_user_new_pass(userInfo)  # Save information to local
-            print("\nUser " + f"{bcolors.BOLD}{userInfo['userName']}{bcolors.ENDC}" + " Login Successfully!")
+            print("\nUser " + f"{userInfo['userName']}" + " Login Successfully!")
             break
         # Fail to login, Retry
         else:
-            print(f"{bcolors.WARNING}\n Time out, Please Retry! ___\n{bcolors.ENDC}")
+            print(f"\n Time out, Please Retry! ___\n")
             time.sleep(1)
     except:
-        print(f"{bcolors.WARNING}\n___ Unmatched UserName and Passwords, Please Retry! ___ \n{bcolors.ENDC}")
+        print(f"\n___ Login Failed, Please Retry! ___ \n")
         time.sleep(1)
     
 
@@ -228,8 +231,10 @@ while(True):
 df = GetDataframe()
 # Try handle the error
 try:
-    if (df == -1):
+    if (type(df) is int):
         print("\nAn error Occured, Please Rerun the program. \n\n")
+    else:
+        AnalysisMark(df)
 except:
     AnalysisMark(df)
 
@@ -240,6 +245,4 @@ driver.close()
 #driver.quit()
 print("============================\n")
 print("Thank you for using this APP!\n")
-print("Made With \u2764\uFE0F  by " + f"{bcolors.OKCYAN}https://lich2000117.github.io/{bcolors.ENDC}")
-
-
+print("Made With \u2764\uFE0F  by " + f"https://lich2000117.github.io/")

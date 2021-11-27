@@ -1,5 +1,5 @@
-# WAMCalculator
-Get Latest WAM / Calculate Standard(COVID-19) WAM in one go.
+# WAMAutoMachine
+Get Latest WAM / Calculate Standard(COVID-19) WAM in one Click.
 
 Since the University provides students options to include all of their results(including COVID WAM^) in their final year's wam calculation, it is important to know which option is better for you.
 Therefore, I wrote this small program that aotumatically calculate your wam with/without covid-19 wam boost.
