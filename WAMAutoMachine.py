@@ -99,10 +99,12 @@ def AnalysisMark(df):
     print(f"\n===================Semester Summary====================\n")
     # adjusted wam
     grouped_df_adj2 = df_covid_adj.groupby(['Year', 'Study Period'], as_index=False).agg(COVID_WAM=('Mark', 'mean'))
+
     # non-adj wam
     grouped_df_norm2 = df.groupby(['Year', 'Study Period'], as_index=False).agg(TOTAL_WAM=('Mark', 'mean'), TOTAL_std=('Mark', 'std'))
+ 
     # total dataframe
-    grouped_df2 = pd.concat([grouped_df_adj2, grouped_df_norm2[["TOTAL_WAM", "TOTAL_std"]]], axis=1)
+    grouped_df2 = pd.concat([grouped_df_norm2, grouped_df_adj2[["COVID_WAM"]]], axis=1)
     print(grouped_df2.to_string(index=False))
 
     print(f"\n\n===================Total Summary====================\n")
