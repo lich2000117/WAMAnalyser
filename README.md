@@ -27,5 +27,5 @@ Haven't realease yet, but you can still run it.
 
 ## Your Login information is only used to login into school's website. Your Information will NOT be gathered or shared with any other use.
 
-![plot](./pics/pc1.png)
-![plot](./pics/pc2.png)
+![plot](./pics/pc1.webp)
+![plot](./pics/pc2.webp)
