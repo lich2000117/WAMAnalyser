@@ -26,3 +26,6 @@ Haven't realease yet, but you can still run it.
 - If open the app and nothing happens, press Enter for a few times.
 
 ## Your Login information is only used to login into school's website. Your Information will NOT be gathered or shared with any other use.
+
+![plot](./pics/pc1.png)
+![plot](./pics/pc2.png)
