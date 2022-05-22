@@ -10,15 +10,18 @@ Therefore, I wrote this small program that aotumatically calculate your wam with
 3. Trending Analysis Plot
 
 ## How To Use:
-Windows:
+### Windows:
 - Download executable file from "release" section.
 - Designed for Windows and Mac users.
 -- Enter Your Uni Account UserName + Password (Will not be displayed but it still enters)
 - Build in Windows: use terminal 'auto-py-to-exe' to build
-Mac:
-Haven't realease yet, but you can still run it.
+### Mac/Linux:
+Haven't realease an APP yet, but you can still run it using Python3.
 - Make sure you know how to use python (install packages, etc)
-- python3 WAMCalculator.py
+- Need to install several packages, these packages are extensions of Python and shouldn't raise any security concerns.
+- ```pip3 install selenium webdriver_manager tabulate getpass plotext```
+- simply copy paste WAMCalculator.py to any location, say ~/Document/WAMCalculator.py, then open "terminal", run
+- ```python3 ~/Document/WAMCalculator.py```
 
 ## Common Issues:
 - Press Enter if you get stuck.
