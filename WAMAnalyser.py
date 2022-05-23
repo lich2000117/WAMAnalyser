@@ -62,10 +62,12 @@ def GetDataframe():
         print("\n==Seems like there's no results available for this course, please try another course.")
         pass
 
-    input("\n==Press Enter to Try Another Course!==")
-    driver.back()
-    print("asd")
-    GetDataframe()
+    i = str(input("\n==Enter 1 to try another course!== \n ==Enter 2 to quit=="))
+    if i == "1":
+        driver.back()
+        GetDataframe()
+    else:
+        return False
     return True
 
 def end_greet():
@@ -292,10 +294,6 @@ except:
     assert(1==0)
 
 #Analysis Part
-df = GetDataframe()
-# Try handle the error
-
-#Finish Off
-
-driver.close()
-#driver.quit()
+if not GetDataframe():
+    #Finish Off
+    driver.close()
