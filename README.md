@@ -27,6 +27,11 @@ Haven't realease an APP yet, but you can still run it using Python3.
 - Press Enter if you get stuck.
 - For Privacy issues the password will not be displayed but it still works.
 - If open the app and nothing happens, press Enter for a few times.
+- For Developer: Always use XPATH and javascript click 
+```
+element = driver.find(xxxx) 
+driver.execute_script("arguments[0].click();", element)
+```
 
 ## Your Login information is only used to login into school's website. Your Information will NOT be gathered or shared with any other use.
 

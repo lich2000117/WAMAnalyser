@@ -12,7 +12,13 @@ from tabulate import tabulate
 
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.common.by import By   #By.ID
+from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.support import expected_conditions as EC
+
+#Turn off Log
+import logging
+logging.getLogger('WDM').setLevel(logging.NOTSET)
 
 use_local_info = False  # Don't store password information into local, PASSWORD will not be encrypted.
 
@@ -153,7 +159,7 @@ print("\n(If you get stuck, try press ENTER)")
 #Driver Initialize
 # Headless runs explorer at background without windows
 options = Options()
-options.add_argument('headless')
+#options.add_argument('headless')
 options.add_experimental_option('excludeSwitches', ['enable-logging'])
 options.add_argument('log-level=3')
 options.add_argument("--window-size=4000,1600") #Big Window
@@ -169,7 +175,7 @@ options.add_experimental_option("prefs", No_Image_loading)
 
 ## Install Driver
 print("\nMake Sure You are Connected to Internet (Use VPN if desired)......\n")
-s = Service(ChromeDriverManager(log_level=0).install())
+s = Service(ChromeDriverManager().install())
 driver = webdriver.Chrome(service = s, options=options)
 print("\nTesting Connection......\n")
 driver.get(URL)
@@ -192,39 +198,61 @@ while(True):
         }
 
     #Login Coding
-    driver.find_element(By.ID, 'ctl00_Content_txtUserName_txtText').clear()    #UserName
-    driver.find_element(By.ID, 'ctl00_Content_txtUserName_txtText').send_keys(userInfo['userName'])
-    driver.find_element(By.ID, 'ctl00_Content_txtPassword_txtText').clear()
-    driver.find_element(By.ID, 'ctl00_Content_txtPassword_txtText').send_keys(userInfo['passWord'])  #password
+    driver.find_element(By.ID, 'okta-signin-username').clear()    #UserName
+    driver.find_element(By.ID, 'okta-signin-username').send_keys(userInfo['userName'])
+    driver.find_element(By.ID, 'okta-signin-password').clear()
+    driver.find_element(By.ID, 'okta-signin-password').send_keys(userInfo['passWord'])  #password
     time.sleep(0.5)
-    driver.find_element(By.ID, 'ctl00_Content_cmdLogin').click()  # Login
-    time.sleep(1.5)
+    driver.find_element(By.ID, 'okta-signin-submit').click()  # Login
     print("\nTrying to Login....")
-    #Check if login successfully
+    # wait untill login successfully
     try:
-        strs = driver.find_element(By.ID, "ctl00_h1PageTitle").text
-        # Login Successfully!
-        if strs == "Personal Details":
-            # Direct to result page
-            try:
-                driver.find_element(By.XPATH, "//*[text()='Results and Graduation']").click()
-                time.sleep(1)
-            except:
-                print("Cannot Direct To Result Page!")
-                assert(1==0)
-            #Save To Local?
-            #use_local_info = str(input("Do you want to save your login information on your computer? (T/F)"))
-            if use_local_info == True:
-                save_user_new_pass(userInfo)  # Save information to local
-            print("\nUser " + f"{userInfo['userName']}" + " Login Successfully!")
-            break
-        # Fail to login, Retry
-        else:
-            print(f"\n Time out, Please Retry! ___\n")
-            time.sleep(1)
-    except:
-        print(f"\n___ Login Failed, Please Retry! ___ \n")
+        element = WebDriverWait(driver, 10).until(
+            EC.presence_of_element_located((By.XPATH, '//*[@id="okta-sign-in"]/div[2]/div/div'))
+        )
+        print("Login Succeed, Two Step Verification Now:")
+        pass
+    except Exception as e:
+        print("Login Failed, Check your UserName and Password and Try Again.")
+        continue
+        
+    # Login Successfully! Need authentication!
+    # 2-step Auth Page
+    print("haha")
+    #Click Drop Down then click item, OR we can use javascript to click driver.execute_script("arguments[0].click();", authmethods)
+    #driver.find_element(By.XPATH, '//*[@id="okta-sign-in"]/div[1]/div/div/div[3]/div/a').click()
+    while True:
+        inp = str(input("\n== Authentication Method Select ==: \n  1.Okta Push To My Phone: Please Enter: 1\n  2.Put in Authenticator Number: Please Enter: 2\n"))
+        if(inp == "1"):
+            # Push to Phone
+            phone_auth = driver.find_element(By.XPATH, '//*[@id="okta-dropdown-options"]/ul/li[2]/a')
+            driver.execute_script("arguments[0].click();", phone_auth)
+            break;
+        elif(inp == "2"):
+            print("Google")
+            # Google Auth
+            google_auth = driver.find_element(By.XPATH, '//*[@id="okta-dropdown-options"]/ul/li[3]/a')
+            driver.execute_script("arguments[0].click();", google_auth)
+            codes = str(input("\n== Please Enter the Google Authenticator Number On your Phone ==: \n "))
+            driver.find_element(By.ID, 'input11').clear()
+            driver.find_element(By.ID, 'input11').send_keys(codes)
+            time.sleep(0.5)
+            driver.find_element(By.ID, 'form9').submit()
+            time.sleep(5)
+
+    # Direct to result page
+    try:
+        driver.find_element(By.XPATH, "//*[text()='Results and Graduation']").click()
         time.sleep(1)
+    except:
+        print("Cannot Direct To Result Page!")
+        assert(1==0)
+    #Save To Local?
+    #use_local_info = str(input("Do you want to save your login information on your computer? (T/F)"))
+    if use_local_info == True:
+        save_user_new_pass(userInfo)  # Save information to local
+    print("\nUser " + f"{userInfo['userName']}" + " Login Successfully!")
+    break
     
 
 
