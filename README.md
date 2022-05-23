@@ -27,13 +27,19 @@ Haven't realease an APP yet, but you can still run it using Python3.
 - Press Enter if you get stuck.
 - For Privacy issues the password will not be displayed but it still works.
 - If open the app and nothing happens, press Enter for a few times.
-- For Developer: Always use XPATH and javascript click 
-```
-element = driver.find(xxxx) 
-driver.execute_script("arguments[0].click();", element)
-```
+
 
 ## Your Login information is only used to login into school's website. Your Information will NOT be gathered or shared with any other use.
 
 ![plot](./pics/pc1.webp)
 ![plot](./pics/pc2.webp)
+
+## For Developer: 
+1. Always use XPATH and javascript click instead of simple .click()
+- XPATH: always use XPATH without dynamic id, for example id="input17", delete this field in the browser's "inspect" tab and copy XPATH again 
+- JS:
+```
+element = driver.find(xxxx) 
+driver.execute_script("arguments[0].click();", element)
+```
+2.

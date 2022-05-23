@@ -59,21 +59,55 @@ def get_saved_pass():
 
 # Scrap for mark, return a dataframe
 def GetDataframe():
-
     # Click on Latest Degree Button "View" to show score table
-    try:
-        driver.find_element(By.XPATH, "//*[contains(text(), 'View')]").click()
-    except:
-        pass
-    time.sleep(1)
+    result_rows = driver.find_elements(By.XPATH, "//tr[contains(@class, 'cssSmGridView')]")
+    names = []
+    links = []
+    i=0
+    print("\n==Please Select One Course to view the result: ")
+    for row in result_rows:
+        i+=1
+        link = row.find_element(By.TAG_NAME, "a")
+        links.append(link)
+        name = row.find_elements(By.TAG_NAME, "td")[2].text
+        names.append(name) # store subject name
+        print(i,': ', name)
+    while True:
+        inp = str(input("==Enter a number and return\n"))
+        try:
+            index = int(inp)-1
+            links[index].click()
+            time.sleep(1)
+            print("Course Selected!")
+            break
+        except:
+            print("Please Select a Number Above!")
+            continue
 
     # Scraping Part for extracting marks from table.
-    df=pd.read_html(driver.page_source)[0]
-    df.loc[df['Grade Description'].str.contains('\^'), 'Covid'] = True
-    df.loc[~df['Grade Description'].str.contains('\^'), 'Covid'] = False
-    #print(df)
-    return df
+    try:
+        df=pd.read_html(driver.page_source)[0]
+        df.loc[df['Grade Description'].str.contains('\^'), 'Covid'] = True
+        df.loc[~df['Grade Description'].str.contains('\^'), 'Covid'] = False
+        if (type(df) is int):
+            print("\nAn error Occured, Please Rerun the program. \n\n")
+        else:
+            AnalysisMark(df)
+            end_greet()
+    except:
+        print("\n==Seems like there's no results available for this course, please try another course.")
+        pass
 
+    input("\nPress Enter to Select Another Course")
+    driver.back()
+    print("asd")
+    GetDataframe()
+    return True
+
+def end_greet():
+    print("============================\n")
+    print("Thank you for using this APP!\n")
+    print("Made With \u2764\uFE0F  by " + f"https://lich2000117.github.io/")
 
 def AnalysisMark(df):
     """Analysis Marks"""
@@ -145,10 +179,96 @@ def AnalysisMark(df):
     # print(plt.show())
     return
     
+def login_part():
+    """Login function that controls login part of the program"""
+    print(f"==All Login information will NOT be shared.\n*Your Password will NOT be displayed. Press ENTER when finished.*\n")
+    while(True):
+        # use local information
+        if (use_local_info):
+            userInfo = get_saved_pass()
+        #if first time login, ask for input, do not save to configurations yet.
+        if (not use_local_info) or (not userInfo):
+            """ASK for Uni Username and Password"""
+            userName = str(input("Uni UserName: "))
+            passWord = str(getpass.getpass("Uni Password: "))
+            userInfo = {
+                'userName': userName,
+                'passWord': passWord,}
 
+        #Login Coding
+        driver.find_element(By.ID, 'okta-signin-username').clear()    #UserName
+        driver.find_element(By.ID, 'okta-signin-username').send_keys(userInfo['userName'])
+        driver.find_element(By.ID, 'okta-signin-password').clear()
+        driver.find_element(By.ID, 'okta-signin-password').send_keys(userInfo['passWord'])  #password
+        time.sleep(0.5)
+        driver.find_element(By.ID, 'okta-signin-submit').click()  # Login
+        print("\n==Trying to Login....", end='')
+        # wait untill login successfully
+        try:
+            WebDriverWait(driver, 10).until(
+                # check if the authentication dropdown menu is shown up
+                EC.presence_of_element_located((By.XPATH, '//*[@id="okta-sign-in"]/div[1]/div/div/div[3]/div/a'))
+            )
+            return True
+        except Exception as e:
+            print("Login Failed, Check your UserName and Password and Try Again.")
+            continue
 
+def twostep_part():
+    """ 2-step Auth Page"""
+    #Click Drop Down then click item, OR we can use javascript to click driver.execute_script("arguments[0].click();", authmethods)
+    #driver.find_element(By.XPATH, '//*[@id="okta-sign-in"]/div[1]/div/div/div[3]/div/a').click()
+    # ask for how to do verification
+    def okta_part():
+        """Okta Push to Phone Authentication"""
+        print("Using Okta Push to Phone")
+        # Select Okta out of the dropdown menu
+        phone_auth = driver.find_element(By.XPATH, '//*[@id="okta-dropdown-options"]/ul/li[2]/a')
+        driver.execute_script("arguments[0].click();", phone_auth)
+        # Push Button to send notification
+        driver.find_element(By.XPATH, '//*[@id="okta-sign-in"]/div[2]/div/div/form[1]/div[2]/input').click()
+        print("\n==Please Accept the Login Request on your phone\n")
+        time.sleep(10)
+        return True
+        
+    def google_part():
+        """Google Authentication part untill success"""
+        print("Using Google Authenticator.")
+        # Select Google Auth
+        google_auth = driver.find_element(By.XPATH, '//*[@id="okta-dropdown-options"]/ul/li[3]/a')
+        driver.execute_script("arguments[0].click();", google_auth)
+        codes = str(input("\n== Please Enter the Google Authenticator Number On your Phone ==: \n "))
+        driver.find_element(By.XPATH, '//*[@id="okta-sign-in"]/div[2]/div/div/form/div[1]/div[2]/div[1]/div[2]/span/input').clear()
+        driver.find_element(By.XPATH, '//*[@id="okta-sign-in"]/div[2]/div/div/form/div[1]/div[2]/div[1]/div[2]/span/input').send_keys(codes)
+        time.sleep(0.5)
+        driver.find_element(By.XPATH, '//*[@id="okta-sign-in"]/div[2]/div/div/form').submit()
+        time.sleep(5)
+        return True
+    while True:
+        try:
+            WebDriverWait(driver, 1).until(
+                EC.presence_of_element_located((By.XPATH, "//*[text()='Results and Graduation']"))
+            )
+            print("==Authenticated!")
+            return True
+        except:
+            pass
+        inp = str(input("\n== Authentication Method Select ==: \n  1.Okta Push To My Phone: Please Enter: 1\n  2.Google Authenticator: Please Enter: 2\n"))
+        if(inp == "1"):
+            okta_part()
+        elif(inp == "2"):
+            google_part()
+        
+        try:
+            WebDriverWait(driver, 8).until(
+                EC.presence_of_element_located((By.XPATH, "//*[text()='Results and Graduation']"))
+            )
+            print("==Authenticated!")
+            return True
+        except Exception as e:
+            print("Authentication Failed, Please Try Again or Select Different Method")
+            continue
 #Main Code:            
-
 
 # Configurations
 URL = "https://prod.ss.unimelb.edu.au/student/Login.aspx"
@@ -174,105 +294,32 @@ options.add_experimental_option("prefs", No_Image_loading)
 
 
 ## Install Driver
-print("\nMake Sure You are Connected to Internet (Use VPN if desired)......\n")
+print("\n==Make Sure You are Connected to Internet (Use VPN if desired)......\n")
 s = Service(ChromeDriverManager().install())
 driver = webdriver.Chrome(service = s, options=options)
-print("\nTesting Connection......\n")
+print("==Testing Connection......", end='')
 driver.get(URL)
 print(f"Succeed!\n")
 
 #Login Part:
 # "== Login ==", break when succeed.
-print(f"All Login information will NOT be shared.\n*Your Password will NOT be displayed. Press ENTER when finished.*\n")
-while(True):
-    if (use_local_info):
-        userInfo = get_saved_pass()
-    #if first time login, ask for input, do not save to configurations yet.
-    if (not use_local_info) or (not userInfo):
-        """ASK for ID Password"""
-        userName = str(input("Uni UserName: "))
-        passWord = str(getpass.getpass("Uni Password: "))
-        userInfo = {
-            'userName': userName,
-            'passWord': passWord,    
-        }
+login_part()
+print("Success! \n==Need 2-step authentication!")
+twostep_part()
+# Direct to result page
+try:
+    driver.find_element(By.XPATH, "//*[text()='Results and Graduation']").click()
+    time.sleep(1)
+except:
+    print("Cannot Direct To Result Page! Please Rerun the Program")
+    assert(1==0)
 
-    #Login Coding
-    driver.find_element(By.ID, 'okta-signin-username').clear()    #UserName
-    driver.find_element(By.ID, 'okta-signin-username').send_keys(userInfo['userName'])
-    driver.find_element(By.ID, 'okta-signin-password').clear()
-    driver.find_element(By.ID, 'okta-signin-password').send_keys(userInfo['passWord'])  #password
-    time.sleep(0.5)
-    driver.find_element(By.ID, 'okta-signin-submit').click()  # Login
-    print("\nTrying to Login....")
-    # wait untill login successfully
-    try:
-        element = WebDriverWait(driver, 10).until(
-            EC.presence_of_element_located((By.XPATH, '//*[@id="okta-sign-in"]/div[2]/div/div'))
-        )
-        print("Login Succeed, Two Step Verification Now:")
-        pass
-    except Exception as e:
-        print("Login Failed, Check your UserName and Password and Try Again.")
-        continue
-        
-    # Login Successfully! Need authentication!
-    # 2-step Auth Page
-    print("haha")
-    #Click Drop Down then click item, OR we can use javascript to click driver.execute_script("arguments[0].click();", authmethods)
-    #driver.find_element(By.XPATH, '//*[@id="okta-sign-in"]/div[1]/div/div/div[3]/div/a').click()
-    while True:
-        inp = str(input("\n== Authentication Method Select ==: \n  1.Okta Push To My Phone: Please Enter: 1\n  2.Put in Authenticator Number: Please Enter: 2\n"))
-        if(inp == "1"):
-            # Push to Phone
-            phone_auth = driver.find_element(By.XPATH, '//*[@id="okta-dropdown-options"]/ul/li[2]/a')
-            driver.execute_script("arguments[0].click();", phone_auth)
-            break;
-        elif(inp == "2"):
-            print("Google")
-            # Google Auth
-            google_auth = driver.find_element(By.XPATH, '//*[@id="okta-dropdown-options"]/ul/li[3]/a')
-            driver.execute_script("arguments[0].click();", google_auth)
-            codes = str(input("\n== Please Enter the Google Authenticator Number On your Phone ==: \n "))
-            driver.find_element(By.ID, 'input11').clear()
-            driver.find_element(By.ID, 'input11').send_keys(codes)
-            time.sleep(0.5)
-            driver.find_element(By.ID, 'form9').submit()
-            time.sleep(5)
-
-    # Direct to result page
-    try:
-        driver.find_element(By.XPATH, "//*[text()='Results and Graduation']").click()
-        time.sleep(1)
-    except:
-        print("Cannot Direct To Result Page!")
-        assert(1==0)
-    #Save To Local?
-    #use_local_info = str(input("Do you want to save your login information on your computer? (T/F)"))
-    if use_local_info == True:
-        save_user_new_pass(userInfo)  # Save information to local
-    print("\nUser " + f"{userInfo['userName']}" + " Login Successfully!")
-    break
-    
-
-
-        
 #Analysis Part
 df = GetDataframe()
 # Try handle the error
-try:
-    if (type(df) is int):
-        print("\nAn error Occured, Please Rerun the program. \n\n")
-    else:
-        AnalysisMark(df)
-except:
-    AnalysisMark(df)
 
 
 #Finish Off
 
 driver.close()
 #driver.quit()
-print("============================\n")
-print("Thank you for using this APP!\n")
-print("Made With \u2764\uFE0F  by " + f"https://lich2000117.github.io/")
