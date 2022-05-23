@@ -262,7 +262,7 @@ print("\n(If you get stuck, try press ENTER)")
 #Driver Initialize
 # Headless runs explorer at background without windows
 options = Options()
-#options.add_argument('headless')
+options.add_argument('headless')
 options.add_experimental_option('excludeSwitches', ['enable-logging'])
 options.add_argument('log-level=3')
 options.add_argument("--window-size=4000,1600") #Big Window
