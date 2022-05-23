@@ -6,7 +6,6 @@ import time
 import getpass
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
-import json
 import pandas as pd
 from tabulate import tabulate
 
@@ -20,42 +19,7 @@ from selenium.webdriver.support import expected_conditions as EC
 import logging
 logging.getLogger('WDM').setLevel(logging.NOTSET)
 
-use_local_info = False  # Don't store password information into local, PASSWORD will not be encrypted.
-
-
 ###functions:
-
-#Mode Choosing Input
-def ask_user_mode():
-    while (True):
-        inp = str(input("\n== Mode Select ==: \n  1.Calculate TOTAL WAM: Please Enter: 1\n  2.Calculate COVID-19 WAM: Please Enter: 2\n"))
-        if(inp == "1"):
-            print("\nTotal WAM Calculator......Initiated\n")
-            return '1'
-        elif (inp == "2"):
-            print("\nCOVID-19 WAM Calculator......Initiated\n")
-            return '2'
-        else:
-            print("Please Enter '1' or '2' ONLY!\n")
-
-
-
-## Save User login information to local, to enable reuse.
-def save_user_new_pass(userInfo):
-    with open('UserPass.json','w') as file_obj:
-        json.dump(userInfo, file_obj)
-    return
-
-def get_saved_pass():
-    """If local has Login Information，Retrive it"""
-    try:
-        with open('UserPass.json') as file_obj:
-            userInfo = json.load(file_obj)
-    except:
-        return None
-    else:
-        return userInfo
-
 
 # Scrap for mark, return a dataframe
 def GetDataframe():
@@ -78,7 +42,7 @@ def GetDataframe():
             index = int(inp)-1
             links[index].click()
             time.sleep(1)
-            print("Course Selected!")
+            #print("Course Selected!")
             break
         except:
             print("Please Select a Number Above!")
@@ -98,7 +62,7 @@ def GetDataframe():
         print("\n==Seems like there's no results available for this course, please try another course.")
         pass
 
-    input("\nPress Enter to Select Another Course")
+    input("\n==Press Enter to Try Another Course!==")
     driver.back()
     print("asd")
     GetDataframe()
@@ -112,7 +76,6 @@ def end_greet():
 def AnalysisMark(df):
     """Analysis Marks"""
     df_covid_adj = df.loc[df["Covid"]!=True]
-
     ## Get Newest FOUR Marks:
     print(f"\n===================LATEST RESULTS====================\n")
     try:
@@ -135,18 +98,14 @@ def AnalysisMark(df):
     grouped_df1 = pd.concat([grouped_df_norm1, grouped_df_adj1[["COVID_WAM"]]], axis=1)
     print(grouped_df1.sort_values(by=['TOTAL_WAM'], ascending = False).to_string(index=False))
 
-
     print(f"\n===================Semester Summary====================\n")
     # adjusted wam
     grouped_df_adj2 = df_covid_adj.groupby(['Year', 'Study Period'], as_index=False).agg(COVID_WAM=('Mark', 'mean'))
-
     # non-adj wam
     grouped_df_norm2 = df.groupby(['Year', 'Study Period'], as_index=False).agg(TOTAL_WAM=('Mark', 'mean'), TOTAL_std=('Mark', 'std'))
- 
     # total dataframe
     grouped_df2 = pd.concat([grouped_df_norm2, grouped_df_adj2[["COVID_WAM"]]], axis=1)
     print(grouped_df2.to_string(index=False))
-
     print(f"\n\n===================Total Summary====================\n")
     d = [ 
         ["WAM", round(df.loc[df["Covid"]==False]["Mark"].mean(), 2), round(df["Mark"].mean(), 2)],
@@ -162,7 +121,6 @@ def AnalysisMark(df):
     pltt.plot([round(df["Mark"].mean(), 2)]*(len(grouped_df2)+1), label = "TotalWAM")
     pltt.plot([round(df.loc[df["Covid"]==False]["Mark"].mean(), 2)]*(len(grouped_df2)+1), label = "CovidWAM")
     pltt.title("My WAM Trend")
-
     #input(f"\nPress ANY KEY to show my WAM trend: ")
     pltt.show()
     ## Pop Out GRAPH:
@@ -184,16 +142,13 @@ def login_part():
     print(f"==All Login information will NOT be shared.\n*Your Password will NOT be displayed. Press ENTER when finished.*\n")
     while(True):
         # use local information
-        if (use_local_info):
-            userInfo = get_saved_pass()
         #if first time login, ask for input, do not save to configurations yet.
-        if (not use_local_info) or (not userInfo):
-            """ASK for Uni Username and Password"""
-            userName = str(input("Uni UserName: "))
-            passWord = str(getpass.getpass("Uni Password: "))
-            userInfo = {
-                'userName': userName,
-                'passWord': passWord,}
+        """ASK for Uni Username and Password"""
+        userName = str(input("Uni UserName: "))
+        passWord = str(getpass.getpass("Uni Password: "))
+        userInfo = {
+            'userName': userName,
+            'passWord': passWord,}
 
         #Login Coding
         driver.find_element(By.ID, 'okta-signin-username').clear()    #UserName
@@ -207,11 +162,24 @@ def login_part():
         try:
             WebDriverWait(driver, 10).until(
                 # check if the authentication dropdown menu is shown up
-                EC.presence_of_element_located((By.XPATH, '//*[@id="okta-sign-in"]/div[1]/div/div/div[3]/div/a'))
+                EC.presence_of_element_located((By.XPATH, '//*[@id="okta-sign-in"]/div[2]/div/div/div/a'))
             )
-            return True
+            time.sleep(4)
+            ele = driver.find_element(By.XPATH, '//*[@id="okta-sign-in"]/div[2]/div/div/div/a')
+            # Check if sign in succesfully
+            if "Sign Out" in ele.text:
+                return True
+            else:
+                time.sleep(1)
+                try:
+                    driver.find_element(By.ID, 'okta-signin-username').clear()
+                except:
+                    time.sleep(5)
+                print("Failed!\nCheck your UserName and Password and Try Again.")
+                continue
         except Exception as e:
-            print("Login Failed, Check your UserName and Password and Try Again.")
+            print(e)
+            print("1Login Failed, Check your UserName and Password and Try Again.")
             continue
 
 def twostep_part():
@@ -221,10 +189,15 @@ def twostep_part():
     # ask for how to do verification
     def okta_part():
         """Okta Push to Phone Authentication"""
-        print("Using Okta Push to Phone")
-        # Select Okta out of the dropdown menu
-        phone_auth = driver.find_element(By.XPATH, '//*[@id="okta-dropdown-options"]/ul/li[2]/a')
-        driver.execute_script("arguments[0].click();", phone_auth)
+        # Select Okta out of the dropdown menu or check if it's already therer
+        try:
+            title = driver.find_element(By.XPATH, '//*[@id="okta-sign-in"]/div[2]/div/div/form[1]/div[1]/h2').text
+            if "Okta" not in title:
+                phone_auth = driver.find_element(By.XPATH, '//*[@id="okta-dropdown-options"]/ul/li[2]/a')
+                driver.execute_script("arguments[0].click();", phone_auth)
+        except:
+            print("Cannot Do Okta Auth, Please Try other options!")
+            return False
         # Push Button to send notification
         driver.find_element(By.XPATH, '//*[@id="okta-sign-in"]/div[2]/div/div/form[1]/div[2]/input').click()
         print("\n==Please Accept the Login Request on your phone\n")
@@ -233,10 +206,15 @@ def twostep_part():
         
     def google_part():
         """Google Authentication part untill success"""
-        print("Using Google Authenticator.")
         # Select Google Auth
-        google_auth = driver.find_element(By.XPATH, '//*[@id="okta-dropdown-options"]/ul/li[3]/a')
-        driver.execute_script("arguments[0].click();", google_auth)
+        try:
+            title = driver.find_element(By.XPATH, '//*[@id="okta-sign-in"]/div[2]/div/div/form[1]/div[1]/h2').text
+            if "Google" not in title:
+                google_auth = driver.find_element(By.XPATH, '//*[@id="okta-dropdown-options"]/ul/li[3]/a')
+                driver.execute_script("arguments[0].click();", google_auth)
+        except:
+            print("Cannot Do Google Auth, Please Try other options!")
+            return False
         codes = str(input("\n== Please Enter the Google Authenticator Number On your Phone ==: \n "))
         driver.find_element(By.XPATH, '//*[@id="okta-sign-in"]/div[2]/div/div/form/div[1]/div[2]/div[1]/div[2]/span/input').clear()
         driver.find_element(By.XPATH, '//*[@id="okta-sign-in"]/div[2]/div/div/form/div[1]/div[2]/div[1]/div[2]/span/input').send_keys(codes)
@@ -255,9 +233,9 @@ def twostep_part():
             pass
         inp = str(input("\n== Authentication Method Select ==: \n  1.Okta Push To My Phone: Please Enter: 1\n  2.Google Authenticator: Please Enter: 2\n"))
         if(inp == "1"):
-            okta_part()
+            if not okta_part(): continue # continue to re-select login methods
         elif(inp == "2"):
-            google_part()
+            if not google_part(): continue
         
         try:
             WebDriverWait(driver, 8).until(
@@ -279,7 +257,7 @@ print("\n(If you get stuck, try press ENTER)")
 #Driver Initialize
 # Headless runs explorer at background without windows
 options = Options()
-#options.add_argument('headless')
+options.add_argument('headless')
 options.add_experimental_option('excludeSwitches', ['enable-logging'])
 options.add_argument('log-level=3')
 options.add_argument("--window-size=4000,1600") #Big Window
@@ -292,7 +270,6 @@ options.add_experimental_option("prefs", No_Image_loading)
 #driver = webdriver.Firefox(options=options, executable_path=driverPath)
 #driver = webdriver.Chrome(options=options, executable_path=driverPath)
 
-
 ## Install Driver
 print("\n==Make Sure You are Connected to Internet (Use VPN if desired)......\n")
 s = Service(ChromeDriverManager().install())
@@ -304,7 +281,7 @@ print(f"Succeed!\n")
 #Login Part:
 # "== Login ==", break when succeed.
 login_part()
-print("Success! \n==Need 2-step authentication!")
+print("Succeed!")
 twostep_part()
 # Direct to result page
 try:
@@ -317,7 +294,6 @@ except:
 #Analysis Part
 df = GetDataframe()
 # Try handle the error
-
 
 #Finish Off
 
