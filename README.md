@@ -20,7 +20,7 @@ Therefore, I wrote this small program that aotumatically calculate your wam with
 2. Copy "WAMAnalyser.py" to Desktop.
 3. Open "Terminal" app.
 4. Enter ```cd Desktop```  #set working directory to desktop 
-5. Enter in Terminal: ```pip3 install selenium webdriver_manager tabulate getpass plotext```  #Install Packages
+5. Enter in Terminal: ```pip3 install selenium webdriver_manager tabulate plotext```  #Install Packages
 6. Run Program, Enter in Terminal: ```python3 WAMAnalyser.py```  #use Python3 to run the program
 7. Follow Instructions in Terminal.
 
