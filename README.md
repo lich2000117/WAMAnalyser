@@ -4,14 +4,14 @@ Get Latest WAM / COVID-19 WAM and bunch of Analysis based on your subject group,
 Since the University provides students options to include all of their results(including COVID WAM^) in their final year's wam calculation, it is important to know which option is better for you.
 Therefore, I wrote this small program that aotumatically calculate your wam with/without covid-19 wam boost.
 
-![plot](./pics/pc1.webp)
-![plot](./pics/pc2.webp)
-
 ## Functionality:
 1. Login into unimelb website with 2-step verification (Okta and Google Authenticator)
 1. Retrive latest course results
 2. Comparisons between Standard WAM and Covid-Affected WAM.  More Info: (https://students.unimelb.edu.au/your-course/manage-your-course/exams-assessments-and-results/results-and-academic-statements/wam/wam-adjustments-2021)
 3. Analysis Plot based on Subjects, Course, Semester
+
+![plot](./pics/mac1.png)
+![plot](./pics/mac2.png)
 
 ## Quick Guide:
 
@@ -24,6 +24,9 @@ Therefore, I wrote this small program that aotumatically calculate your wam with
 6. Run Program, Enter in Terminal: ```python3 WAMAnalyser.py```  #use Python3 to run the program
 7. Follow Instructions in Terminal.
 
+
+![plot](./pics/pc1.webp)
+![plot](./pics/pc2.webp)
 #### Windows:
 - Download executable file from "release" section.
 - Or, follow the similar guide with Mac user defined above.
