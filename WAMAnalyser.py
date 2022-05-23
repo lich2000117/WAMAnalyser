@@ -22,31 +22,32 @@ logging.getLogger('WDM').setLevel(logging.NOTSET)
 ###functions:
 
 # Scrap for mark, return a dataframe
-def GetDataframe():
-    # Click on Latest Degree Button "View" to show score table
-    result_rows = driver.find_elements(By.XPATH, "//tr[contains(@class, 'cssSmGridView')]")
-    names = []
-    links = []
-    i=0
-    print("\n==Please Select One Course to view the result: ")
-    for row in result_rows:
-        i+=1
-        link = row.find_element(By.TAG_NAME, "a")
-        links.append(link)
-        name = row.find_elements(By.TAG_NAME, "td")[2].text
-        names.append(name) # store subject name
-        print(i,': ', name)
-    while True:
-        inp = str(input("==Enter a number and return\n"))
-        try:
-            index = int(inp)-1
-            links[index].click()
-            time.sleep(1)
-            #print("Course Selected!")
-            break
-        except:
-            print("Please Select a Number Above!")
-            continue
+def SelectCourse():
+    
+        # Click on Latest Degree Button "View" to show score table
+        result_rows = driver.find_elements(By.XPATH, "//tr[contains(@class, 'cssSmGridView')]")
+        names = []
+        links = []
+        i=0
+        print("\n==Please Select One Course to view the result: ")
+        for row in result_rows:
+            i+=1
+            link = row.find_element(By.TAG_NAME, "a")
+            links.append(link)
+            name = row.find_elements(By.TAG_NAME, "td")[2].text
+            names.append(name) # store subject name
+            print(i,': ', name)
+        while True:
+            inp = str(input("==Enter a number and return\n"))
+            try:
+                index = int(inp)-1
+                links[index].click()
+                time.sleep(1)
+                #print("Course Selected!")
+                break
+            except:
+                print("Please Select a Number Above!")
+                continue
 
     # Scraping Part for extracting marks from table.
     try:
@@ -65,7 +66,7 @@ def GetDataframe():
     i = str(input("\n==Enter 1 to try another course!== \n ==Enter 2 to quit=="))
     if i == "1":
         driver.back()
-        GetDataframe()
+        SelectCourse()
     else:
         return False
     return True
@@ -259,7 +260,7 @@ print("\n(If you get stuck, try press ENTER)")
 #Driver Initialize
 # Headless runs explorer at background without windows
 options = Options()
-options.add_argument('headless')
+#options.add_argument('headless')
 options.add_experimental_option('excludeSwitches', ['enable-logging'])
 options.add_argument('log-level=3')
 options.add_argument("--window-size=4000,1600") #Big Window
@@ -294,6 +295,6 @@ except:
     assert(1==0)
 
 #Analysis Part
-if not GetDataframe():
+if not SelectCourse():
     #Finish Off
     driver.close()
