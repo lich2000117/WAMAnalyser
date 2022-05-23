@@ -20,7 +20,7 @@ Therefore, I wrote this small program that aotumatically calculate your wam with
 2. Copy "WAMAnalyser.py" to Desktop.
 3. Open "Terminal" app.
 4. Enter ```cd Desktop```  #set working directory to desktop 
-5. Enter in Terminal: ```pip3 install selenium webdriver_manager tabulate plotext```  #Install Packages
+5. Enter in Terminal: ```pip3 install selenium webdriver_manager tabulate plotext lxml```  #Install Packages
 6. Run Program, Enter in Terminal: ```python3 WAMAnalyser.py```  #use Python3 to run the program
 7. Follow Instructions in Terminal.
 
@@ -28,6 +28,8 @@ Therefore, I wrote this small program that aotumatically calculate your wam with
 - Download executable file from "release" section.
 - Or, follow the similar guide with Mac user defined above.
 
+#### Uninstall:
+```pip3 remove selenium webdriver_manager tabulate plotext lxml```
 
 ## Known Issues:
 - Login might fail if you take Okta Verification too slow.

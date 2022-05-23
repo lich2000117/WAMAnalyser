@@ -33,9 +33,10 @@ def SelectCourse():
         print("\n==Please Select One Course to view the result: ")
         for row in result_rows:
             i+=1
-            link = row.find_element(By.TAG_NAME, "a")
+            TDs = row.find_elements(By.TAG_NAME, "td")
+            link = TDs[0].find_element(By.TAG_NAME, "a")
             links.append(link)
-            name = row.find_elements(By.TAG_NAME, "td")[2].text
+            name = TDs[2].text
             names.append(name) # store subject name
             print(i,': ', name)
         while True:
@@ -61,7 +62,8 @@ def SelectCourse():
         else:
             AnalysisMark(df)
             end_greet()
-    except:
+    except Exception as e:
+        print(e)
         print("\n==Seems like there's no results available for this course, please try another course.")
         pass
 
@@ -71,7 +73,7 @@ def SelectCourse():
         SelectCourse()
     else:
         return False
-    return True
+    return False
 
 def end_greet():
     print("============================\n")
@@ -297,6 +299,6 @@ except:
     assert(1==0)
 
 #Analysis Part
-if not SelectCourse():
-    #Finish Off
-    driver.close()
+SelectCourse()
+#Finish Off, close driver
+driver.quit()
