@@ -150,7 +150,7 @@ def login_part():
     while(True):
         # use local information
         #if first time login, ask for input, do not save to configurations yet.
-        """ASK for Uni Username and Password"""
+        """ASK for Uni Username(not email) and Password"""
         userName = str(input("Uni UserName: "))
         passWord = str(getpass.getpass("Uni Password: "))
         userInfo = {
