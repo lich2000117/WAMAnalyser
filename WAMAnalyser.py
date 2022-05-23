@@ -23,7 +23,8 @@ logging.getLogger('WDM').setLevel(logging.NOTSET)
 
 # Scrap for mark, return a dataframe
 def SelectCourse():
-    
+    # This try block handles the situation where you have multiple courses to choose, or it displays result directly
+    try:
         # Click on Latest Degree Button "View" to show score table
         result_rows = driver.find_elements(By.XPATH, "//tr[contains(@class, 'cssSmGridView')]")
         names = []
@@ -48,7 +49,8 @@ def SelectCourse():
             except:
                 print("Please Select a Number Above!")
                 continue
-
+    except:
+        pass
     # Scraping Part for extracting marks from table.
     try:
         df=pd.read_html(driver.page_source)[0]
