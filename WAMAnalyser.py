@@ -183,11 +183,10 @@ def login_part():
                 except:
                     time.sleep(5)
                 print("Failed!\nCheck your UserName and Password and Try Again.")
+                time.sleep(2)
                 continue
         except Exception as e:
-            time.sleep(1)
             print("1Login Failed, Check your UserName and Password and Try Again.")
-            time.sleep(2)
             continue
 
 def twostep_part():
