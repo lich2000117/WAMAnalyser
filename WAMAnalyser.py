@@ -167,26 +167,16 @@ def login_part():
         print("\n==Trying to Login....", end='')
         # wait untill login successfully
         try:
-            WebDriverWait(driver, 10).until(
-                # check if the authentication dropdown menu is shown up
-                EC.presence_of_element_located((By.XPATH, '//*[@id="okta-sign-in"]/div[2]/div/div/div/a'))
+            WebDriverWait(driver, 15).until(
+                # check if the url is directed to verify page
+                EC.url_contains("verify")
             )
-            time.sleep(4)
-            ele = driver.find_element(By.XPATH, '//*[@id="okta-sign-in"]/div[2]/div/div/div/a')
-            # Check if sign in succesfully
-            if "Sign Out" in ele.text:
-                return True
-            else:
-                time.sleep(1)
-                try:
-                    driver.find_element(By.ID, 'okta-signin-username').clear()
-                except:
-                    time.sleep(5)
-                print("Failed!\nCheck your UserName and Password and Try Again.")
-                time.sleep(2)
-                continue
+            time.sleep(1)
+            return True
+                    #driver.find_element(By.ID, 'okta-signin-username').clear()
         except Exception as e:
-            print("1Login Failed, Check your UserName and Password and Try Again.")
+            print(e)
+            print("Login Failed, Check your UserName and Password and Try Again.")
             continue
 
 def twostep_part():
