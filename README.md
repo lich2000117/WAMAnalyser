@@ -38,25 +38,32 @@ Overall Statistics       |  Analysis Plot
 ## How to Use:
 
 #### Mac/Linux User:
-1. Make sure you have Python 3.8+ Installed.
+1. Make sure you have [Python 3.8+](https://www.python.org/) Installed.
 2. Copy "WAMAnalyser.py" to Desktop.
 3. Open "Terminal" app.
-4. Enter ```cd Desktop```  #set working directory to desktop 
-5. Enter in Terminal: ```pip3 install selenium webdriver_manager tabulate plotext lxml```  #Install Packages
-6. Run Program, Enter in Terminal: ```python3 WAMAnalyser.py```  #use Python3 to run the program
+4. Enter the following Codes in terminal:
+5. ```cd Desktop```
+6. ```pip3 install selenium webdriver_manager tabulate plotext lxml```   ## if you can't run this step, it means you don't have a valid [Python 3.8+](https://www.python.org/) installed
+7. ```python3 WAMAnalyser.py```
+8. Follow Instructions in Terminal.
+
+
+#### Windows:
+1. Make sure you have [Python 3.8+](https://www.python.org/) Installed.
+2. Copy "WAMAnalyser.py" to Desktop.
+3. Right Click to the Desktop and "Open in Terminal"
+4. Enter following lines in Terminal: 
+5. ```pip install selenium webdriver_manager tabulate plotext lxml```   ##If it doesn't work, it means you don't have a valid [Python 3.8+](https://www.python.org/) Installed.
+6. ```python WAMAnalyser.py```
 7. Follow Instructions in Terminal.
 
-
-![plot](./pics/pc1.webp =150x100)
-![plot](./pics/pc2.webp =150x100)
-#### Windows:
-- Download executable file from "release" section.
-- Or, follow the similar guide with Mac user defined above.
-
-#### Uninstall:
-```pip3 remove selenium webdriver_manager tabulate plotext lxml```
+## Uninstall:
+#### Mac/Linux User:
+1. ```pip3 remove selenium webdriver_manager tabulate plotext lxml```
 Then Delete the downloaded files.
-
+2. #### Windows:
+1. ```pip remove selenium webdriver_manager tabulate plotext lxml```
+2. Then Delete the downloaded files.
 ## Known Issues:
 - Login might fail if you have bad internet connections.
 - For Privacy issues the password will not be displayed but it still works.
