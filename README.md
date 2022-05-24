@@ -10,8 +10,14 @@ Therefore, I wrote this small program that aotumatically calculate your wam with
 2. Comparisons between Standard WAM and Covid-Affected WAM.  More Info: (https://students.unimelb.edu.au/your-course/manage-your-course/exams-assessments-and-results/results-and-academic-statements/wam/wam-adjustments-2021)
 3. Analysis Plot based on Subjects, Course, Semester
 
-![plot](./pics/mac1.png)
-![plot](./pics/mac2.png)
+Overall Statistics       |  Analysis Plot
+:-------------------------:|:-------------------------:
+![](./pics/pc1.webp)  |  <img src="./pics/mac2.png" width="1000">
+
+|Login Detail|
+|:-------------------------:|
+|<img src="./pics/mac1.png" width="400">|
+
 
 ## Quick Guide:
 
@@ -25,8 +31,8 @@ Therefore, I wrote this small program that aotumatically calculate your wam with
 7. Follow Instructions in Terminal.
 
 
-![plot](./pics/pc1.webp)
-![plot](./pics/pc2.webp)
+![plot](./pics/pc1.webp =150x100)
+![plot](./pics/pc2.webp =150x100)
 #### Windows:
 - Download executable file from "release" section.
 - Or, follow the similar guide with Mac user defined above.
