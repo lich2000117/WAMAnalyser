@@ -43,7 +43,7 @@ Overall Statistics       |  Analysis Plot
 3. Open "Terminal" app.
 4. Enter the following Codes in terminal:
 5. ```cd Desktop```
-6. ```pip3 install selenium webdriver_manager tabulate plotext lxml```   ## if you can't run this step, it means you don't have a valid [Python 3.8+](https://www.python.org/) installed
+6. ```pip3 install pandas selenium webdriver_manager tabulate plotext lxml```   ## if you can't run this step, it means you don't have a valid [Python 3.8+](https://www.python.org/) installed
 7. ```python3 WAMAnalyser.py```
 8. Follow Instructions in Terminal.
 
@@ -53,7 +53,7 @@ Overall Statistics       |  Analysis Plot
 2. Copy "WAMAnalyser.py" to Desktop.
 3. Right Click to the Desktop and "Open in Terminal"
 4. Enter following lines in Terminal: 
-5. ```pip install selenium webdriver_manager tabulate plotext lxml```   ##If it doesn't work, it means you don't have a valid [Python 3.8+](https://www.python.org/) Installed.
+5. ```pip install pandas selenium webdriver_manager tabulate plotext lxml```   ##If it doesn't work, it means you don't have a valid [Python 3.8+](https://www.python.org/) Installed.
 6. ```python WAMAnalyser.py```
 7. Follow Instructions in Terminal.
 
