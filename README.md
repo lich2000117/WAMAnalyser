@@ -3,7 +3,7 @@
 ##### Table of Contents  
 1. [What is this?](#What-is-this?)  
 2. [Functionality](#Functionality)  
-3. [How to Use](#How-to-Use)  
+3. [**How to Use**](#How-to-Use)  
 4. [Uninstall](#Uninstall)  
 5. [Known Issues](#Known-Issues)  
 6. [Developer Notes](#Developer-Notes)  
@@ -38,7 +38,7 @@ Overall Statistics       |  Analysis Plot
 ## How to Use:
 
 #### Mac/Linux User:
-1. Make sure you have [Python 3.8+](https://www.python.org/) Installed.
+1. Make sure you have [Python 3.8+](https://www.python.org/) Installed. Upon Installation, make sure "Add Python to PATH" is enabled.
 2. Copy "WAMAnalyser.py" to Desktop.
 3. Open "Terminal" app.
 4. Enter the following Codes in terminal:
@@ -49,7 +49,7 @@ Overall Statistics       |  Analysis Plot
 
 
 #### Windows:
-1. Make sure you have [Python 3.8+](https://www.python.org/) Installed.
+1. Make sure you have [Python 3.8+](https://www.python.org/) Installed. Upon Installation, make sure "Add Python to PATH" is enabled.
 2. Copy "WAMAnalyser.py" to Desktop.
 3. Right Click to the Desktop and "Open in Terminal"
 4. Enter following lines in Terminal: 
