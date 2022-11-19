@@ -15,6 +15,18 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.support import expected_conditions as EC
 
+# colour definition
+class bcolors:
+    HEADER = '\033[95m'
+    OKBLUE = '\033[94m'
+    OKCYAN = '\033[96m'
+    OKGREEN = '\033[92m'
+    WARNING = '\033[93m'
+    FAIL = '\033[91m'
+    ENDC = '\033[0m'
+    BOLD = '\033[1m'
+    UNDERLINE = '\033[4m'
+
 #Turn off Log
 import logging
 logging.getLogger('WDM').setLevel(logging.NOTSET)
@@ -30,7 +42,7 @@ def SelectCourse():
         names = []
         links = []
         i=0
-        print("\n==Please Select One Course to view the result: ")
+        print(f"{bcolors.HEADER}\n== Please Select One Course to view the result: {bcolors.ENDC}")
         for row in result_rows:
             i+=1
             TDs = row.find_elements(By.TAG_NAME, "td")
@@ -40,7 +52,7 @@ def SelectCourse():
             names.append(name) # store subject name
             print(i,': ', name)
         while True:
-            inp = str(input("==Enter a number and return\n"))
+            inp = str(input(f"{bcolors.HEADER}== Enter a number and return\n{bcolors.ENDC}"))
             try:
                 index = int(inp)-1
                 links[index].click()
@@ -48,7 +60,7 @@ def SelectCourse():
                 #print("Course Selected!")
                 break
             except:
-                print("Please Select a Number Above!")
+                print(f"{bcolors.WARNING}Please Select a Number Above!{bcolors.ENDC}")
                 continue
     except:
         pass
@@ -58,40 +70,49 @@ def SelectCourse():
         df.loc[df['Grade Description'].str.contains('\^'), 'Covid'] = True
         df.loc[~df['Grade Description'].str.contains('\^'), 'Covid'] = False
         if (type(df) is int):
-            print("\nAn error Occured, Please Rerun the program. \n\n")
+            print(f"{bcolors.FAIL}\nAn error Occured, Please Rerun the program. \n\n{bcolors.ENDC}")
         else:
             AnalysisMark(df)
             end_greet()
     except Exception as e:
         print(e)
-        print("\n==Seems like there's no results available for this course, please try another course.")
+        print(f"{bcolors.WARNING}\n==Seems like there's no results available for this course, please try another course.{bcolors.ENDC}")
         pass
 
-    i = str(input("\n==Enter 1 to try another course!== \n ==Enter 2 to quit=="))
-    if i == "1":
+    i = str(input(f"{bcolors.BOLD}\n== Enter Any Key to try another course! == \n== Press 'q' to quit =={bcolors.ENDC}"))
+    if i == "q":
+        return False
+    else:
         driver.back()
         SelectCourse()
-    else:
-        return False
     return False
 
 def end_greet():
-    print("============================\n")
-    print("Thank you for using this APP!\n")
-    print("Made With \u2764\uFE0F  by " + f"https://lich2000117.github.io/")
+    print("\n================================================\n")
+    print(f"{bcolors.OKGREEN}Thank you for using this APP!\n{bcolors.ENDC}")
+    print("Made With \u2764\uFE0F  by " + f"{bcolors.OKCYAN}https://lich2000117.github.io/{bcolors.ENDC}")
 
 def AnalysisMark(df):
     """Analysis Marks"""
     df_covid_adj = df.loc[df["Covid"]!=True]
+
+    print(f"{bcolors.OKCYAN}Generating Report....{bcolors.ENDC}", end='')
+    time.sleep(1)
+    print(f"{bcolors.OKGREEN}Succeed!{bcolors.ENDC}")
+    time.sleep(0.5)
+    
+
     ## Get Newest FOUR Marks:
-    print(f"\n===================LATEST RESULTS====================\n")
+    print(f"{bcolors.HEADER}\n=================== LATEST RESULTS ====================\n{bcolors.ENDC}")
     try:
         print(df.iloc[:4][["Year", "Study Period", "Subject", "Mark", "Grade Code", "Covid"]].to_string(index=False))
     except:
         print(df["Year", "Study Period", "Subject", "Mark", "Grade Code", "Covid"].to_string(index=False))
 
+    time.sleep(0.5)
+
     ## Summary:
-    print(f"\n===================COURSE Summary====================\n")
+    print(f"{bcolors.HEADER}\n=================== COURSE Summary ====================\n{bcolors.ENDC}")
     # Groupby Course Types
     df_covid_adj2 = df_covid_adj.copy()
     df2 = df.copy()
@@ -105,7 +126,9 @@ def AnalysisMark(df):
     grouped_df1 = pd.concat([grouped_df_norm1, grouped_df_adj1[["COVID_WAM"]]], axis=1)
     print(grouped_df1.sort_values(by=['TOTAL_WAM'], ascending = False).to_string(index=False))
 
-    print(f"\n===================Semester Summary====================\n")
+    time.sleep(1)
+
+    print(f"{bcolors.HEADER}\n=================== Semester Summary ====================\n{bcolors.ENDC}")
     # adjusted wam
     grouped_df_adj2 = df_covid_adj.groupby(['Year', 'Study Period'], as_index=False).agg(COVID_WAM=('Mark', 'mean'))
     # non-adj wam
@@ -113,7 +136,10 @@ def AnalysisMark(df):
     # total dataframe
     grouped_df2 = pd.concat([grouped_df_norm2, grouped_df_adj2[["COVID_WAM"]]], axis=1)
     print(grouped_df2.to_string(index=False))
-    print(f"\n\n===================Total Summary====================\n")
+
+    time.sleep(0.2)
+
+    print(f"{bcolors.HEADER}\n\n=================== Total Summary ====================\n{bcolors.ENDC}")
     d = [ 
         ["WAM", round(df.loc[df["Covid"]==False]["Mark"].mean(), 2), round(df["Mark"].mean(), 2)],
         ["Median", round(df.loc[df["Covid"]==False]["Mark"].median(), 2), round(df["Mark"].median(), 2)],
@@ -122,14 +148,27 @@ def AnalysisMark(df):
     print(tabulate(d, headers=["", "Covid-Adj Marks", "ALL Marks"]))
 
     ## Graph
-    print(f"\n\n===================Graph Summary====================\n")
+    print(f"{bcolors.OKCYAN}Generating Graph....{bcolors.ENDC}", end='')
+    time.sleep(2)
+    print(f"{bcolors.OKGREEN}Succeed!{bcolors.ENDC}")
+    time.sleep(1)
+    
+    print(f"{bcolors.HEADER}\n\n=================== Graph Summary ====================\n{bcolors.ENDC}")
+    pltt.clear_figure()
+    pltt.ylim(min(grouped_df2["TOTAL_WAM"].tolist()), 100) # set y axis low and high limit
     grouped_df2["Period"] = grouped_df2["Year"].astype(str) +" "+ grouped_df2["Study Period"]
-    pltt.bar(grouped_df2["Period"].tolist(), grouped_df2["TOTAL_WAM"].tolist())
-    pltt.plot([round(df["Mark"].mean(), 2)]*(len(grouped_df2)+1), label = "TotalWAM")
-    pltt.plot([round(df.loc[df["Covid"]==False]["Mark"].mean(), 2)]*(len(grouped_df2)+1), label = "CovidWAM")
-    pltt.title("My WAM Trend")
+   
+    # simple horizontal plot
+    pltt.simple_multiple_bar(grouped_df2["Period"].tolist(), [grouped_df2["TOTAL_WAM"].tolist()], labels = ["WAM"], title = "WAM Trend")
+    
+    # bar plot with WAM line
+    #pltt.bar(grouped_df2["Period"].tolist(), grouped_df2["TOTAL_WAM"].tolist())
+    #pltt.plot([round(df["Mark"].mean(), 2)]*(len(grouped_df2)+1), label = "TotalWAM")
+    #pltt.plot([round(df.loc[df["Covid"]==False]["Mark"].mean(), 2)]*(len(grouped_df2)+1), label = "CovidWAM")
+    #pltt.title("My WAM Trend")
     #input(f"\nPress ANY KEY to show my WAM trend: ")
     pltt.show()
+    
     ## Pop Out GRAPH:
     # plt.figure(figsize=(10, 5), dpi=160)
     # plt.tight_layout()
@@ -146,7 +185,8 @@ def AnalysisMark(df):
     
 def login_part():
     """Login function that controls login part of the program"""
-    print(f"==All Login information will NOT be shared.\n*Your Password will NOT be displayed. Press ENTER when finished.*\n")
+    print(f"{bcolors.FAIL}==All Login information will NOT be shared.\n{bcolors.ENDC}" + 
+    f"*Your Password will NOT be displayed. Press ENTER when finished.*\n")
     while(True):
         # use local information
         #if first time login, ask for input, do not save to configurations yet.
@@ -164,10 +204,10 @@ def login_part():
         driver.find_element(By.ID, 'okta-signin-password').send_keys(userInfo['passWord'])  #password
         time.sleep(0.5)
         driver.find_element(By.ID, 'okta-signin-submit').click()  # Login
-        print("\n==Trying to Login....", end='')
+        print(f"{bcolors.OKCYAN}\n==Trying to Login....{bcolors.ENDC}", end='')
         # wait untill login successfully
         try:
-            WebDriverWait(driver, 15).until(
+            WebDriverWait(driver, 12).until(
                 # check if the url is directed to verify page
                 EC.url_contains("verify")
             )
@@ -176,7 +216,7 @@ def login_part():
                     #driver.find_element(By.ID, 'okta-signin-username').clear()
         except Exception as e:
             print(e)
-            print("Login Failed, Check your UserName and Password and Try Again.")
+            print(f"{bcolors.WARNING}Login Failed, Check your UserName and Password and Try Again.{bcolors.ENDC}")
             continue
 
 def twostep_part():
@@ -193,11 +233,12 @@ def twostep_part():
                 phone_auth = driver.find_element(By.XPATH, '//*[@id="okta-dropdown-options"]/ul/li[2]/a')
                 driver.execute_script("arguments[0].click();", phone_auth)
         except:
-            print("Cannot Do Okta Auth, Please Try other options!")
+            print(f"{bcolors.FAIL}Cannot Do Okta Auth, Please Try other options!{bcolors.ENDC}")
             return False
         # Push Button to send notification
+        time.sleep(1)
         driver.find_element(By.XPATH, '//*[@id="okta-sign-in"]/div[2]/div/div/form[1]/div[2]/input').click()
-        print("\n==Please Accept the Login Request on your phone\n")
+        print(f"{bcolors.OKBLUE}\n== Please Accept the Login Request on your phone\n{bcolors.ENDC}")
         time.sleep(10)
         return True
         
@@ -210,9 +251,9 @@ def twostep_part():
                 google_auth = driver.find_element(By.XPATH, '//*[@id="okta-dropdown-options"]/ul/li[3]/a')
                 driver.execute_script("arguments[0].click();", google_auth)
         except:
-            print("Cannot Do Google Auth, Please Try other options!")
+            print(f"{bcolors.FAIL}Cannot Do Google Auth, Please Try other options!{bcolors.ENDC}")
             return False
-        codes = str(input("\n== Please Enter the Google Authenticator Number On your Phone ==: \n "))
+        codes = str(input(f"{bcolors.OKBLUE}\n== Please Enter the Google Authenticator Number On your Phone ==: \n {bcolors.ENDC}"))
         driver.find_element(By.XPATH, '//*[@id="okta-sign-in"]/div[2]/div/div/form/div[1]/div[2]/div[1]/div[2]/span/input').clear()
         driver.find_element(By.XPATH, '//*[@id="okta-sign-in"]/div[2]/div/div/form/div[1]/div[2]/div[1]/div[2]/span/input').send_keys(codes)
         time.sleep(0.5)
@@ -224,11 +265,11 @@ def twostep_part():
             WebDriverWait(driver, 1).until(
                 EC.presence_of_element_located((By.XPATH, "//*[text()='Results and Graduation']"))
             )
-            print("==Authenticated!")
+            print(f"{bcolors.OKGREEN}== Authenticated! =={bcolors.ENDC}")
             return True
         except:
             pass
-        inp = str(input("\n== Authentication Method Select ==: \n  1.Okta Push To My Phone: Please Enter: 1\n  2.Google Authenticator: Please Enter: 2\n"))
+        inp = str(input(f"{bcolors.OKBLUE}\n== Authentication Method Select ==: \n{bcolors.ENDC}" + "  1.Okta Push To My Phone: Please Enter: 1\n  2.Google Authenticator: Please Enter: 2\n"))
         if(inp == "1"):
             if not okta_part(): continue # continue to re-select login methods
         elif(inp == "2"):
@@ -238,19 +279,19 @@ def twostep_part():
             WebDriverWait(driver, 8).until(
                 EC.presence_of_element_located((By.XPATH, "//*[text()='Results and Graduation']"))
             )
-            print("==Authenticated!")
+            print(f"{bcolors.OKGREEN}==Authenticated!{bcolors.ENDC}")
             return True
         except Exception as e:
-            print("Authentication Failed, Please Try Again or Select Different Method")
+            print(f"{bcolors.WARNING}Authentication Failed, Please Try Again or Select Different Method\n{bcolors.ENDC}")
             continue
 #Main Code:            
 
 # Configurations
 URL = "https://prod.ss.unimelb.edu.au/student/Login.aspx"
 
-print(f"\n=======  WAM CALCULATOR ========")
-print("                     [By Chenghao Li]")
-print("\n(If you get stuck, try press ENTER)")
+print(f"{bcolors.HEADER}\n==========  WAM Analyser ==========={bcolors.ENDC}")
+print(f"                     [By Chenghao Li]")
+print(f"{bcolors.OKBLUE}\n(If you get stuck, try press ENTER){bcolors.ENDC}")
 #Driver Initialize
 # Headless runs explorer at background without windows
 options = Options()
@@ -268,24 +309,24 @@ options.add_experimental_option("prefs", No_Image_loading)
 #driver = webdriver.Chrome(options=options, executable_path=driverPath)
 
 ## Install Driver
-print("\n==Make Sure You are Connected to Internet (Use VPN if desired)......\n")
+print(f"{bcolors.WARNING}\n== Make Sure You are Connected to Internet (Use VPN if desired)......\n{bcolors.ENDC}")
 s = Service(ChromeDriverManager().install())
 driver = webdriver.Chrome(service = s, options=options)
-print("==Testing Connection......", end='')
+print(f"{bcolors.OKCYAN}\n\n== Testing Connection......{bcolors.ENDC}", end='')
 driver.get(URL)
-print(f"Succeed!\n")
+print(f"{bcolors.OKGREEN}Succeed!\n{bcolors.ENDC}")
 
 #Login Part:
 # "== Login ==", break when succeed.
 login_part()
-print("Succeed!")
+print(f"{bcolors.OKGREEN}Succeed!{bcolors.ENDC}")
 twostep_part()
 # Direct to result page
 try:
     driver.find_element(By.XPATH, "//*[text()='Results and Graduation']").click()
     time.sleep(1)
 except:
-    print("Cannot Direct To Result Page! Please Rerun the Program")
+    print(f"{bcolors.FAIL}Cannot Direct To Result Page! Please run the Program again{bcolors.ENDC}")
     assert(1==0)
 
 #Analysis Part

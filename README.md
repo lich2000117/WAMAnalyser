@@ -26,9 +26,9 @@ Therefore, I wrote this small program that aotumatically calculate your wam with
 2. Comparisons between Standard WAM and Covid-Affected WAM.  More Info: (https://students.unimelb.edu.au/your-course/manage-your-course/exams-assessments-and-results/results-and-academic-statements/wam/wam-adjustments-2021)
 3. Analysis Plot based on Subjects, Course, Semester
 
-Overall Statistics       |  Analysis Plot
+Overall Statistics       |  Bar Plot
 :-------------------------:|:-------------------------:
-![](./pics/pc1.webp)  |  <img src="./pics/mac2.png" width="1000">
+![](./pics/mac0.png)  |  <img src="./pics/mac2.png" width="1000">
 
 |Login Detail|
 |:-------------------------:|
